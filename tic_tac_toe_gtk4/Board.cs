@@ -1,9 +1,12 @@
+using GtkDotNet;
+using GtkDotNet.SafeHandles;
+
 namespace tic_tac_toe_gtk4;
 
 public class Board
 {
     private char[,] _board;
-
+    
     public Board(int sideLength)
     {
         _board = new char[sideLength, sideLength];
@@ -18,7 +21,7 @@ public class Board
     
     public char Player { get; set; } = 'X';
 
-    public void ResetBoard()
+    public void ResetBoard(ObjectRef<ButtonHandle>[] buttonHandles)
     {
         for (int i = 0; i < _board.GetLength(0); i++)
         {
@@ -27,8 +30,13 @@ public class Board
                 _board[i, j] = ' ';
             }
         }
-    }
 
+        for (int i = 0; i < buttonHandles.Length; i++)
+        {
+            buttonHandles[i].Ref.Label("");
+        }
+    }
+    
     public char UpdateBoard(int row, int column)
     {
         if (_board[row, column] == ' ')
@@ -39,8 +47,16 @@ public class Board
         return _board[row, column];
     }
 
-    public char CheckBoard()
+    public enum Winner
     {
-        return ' ';
+        Blank,
+        Tie,
+        X,
+        O
+    }
+    
+    public Winner CheckBoard()
+    {
+        return Winner.Blank;
     }
 }

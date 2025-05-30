@@ -6,12 +6,29 @@ using tic_tac_toe_gtk4;
 var sideLength = 3;
 var board = new Board(sideLength);
 var buttonHandles = Enumerable.Repeat(0, sideLength * sideLength).Select(h => new ObjectRef<ButtonHandle>()).ToArray();
+var labelHandle = new ObjectRef<LabelHandle>();
 
 void ButtonOnClicked(int row, int column)
 {
     buttonHandles[row * sideLength + column].Ref.Label($"{board.UpdateBoard(row, column)}");
+    Board.Winner winner = board.CheckBoard();
     // TODO: Game logic
-    board.CheckBoard();
+    switch (winner)
+    {
+        case Board.Winner.X:
+        case Board.Winner.O:
+            labelHandle.Ref.Set($"{winner} is the winner!");
+            board.ResetBoard(buttonHandles);
+            break;
+
+        case Board.Winner.Tie:
+            labelHandle.Ref.Set("It's a tie!");
+            board.ResetBoard(buttonHandles);
+            break;
+
+        case Board.Winner.Blank:
+            break;
+    }
 }
 
 return Application
@@ -33,13 +50,16 @@ return Application
                            Button.NewWithLabel("")
                                .OnClicked(() => ButtonOnClicked(row, column))
                                .SizeRequest(50, 50)
+                               .Margin(3)
                                .Ref(buttonHandles[j * sideLength + i]),
                            i, j, 1, 1
                        );
                    }
                }
                win.Child(Box.New(Orientation.Vertical)
-                   .Append(Label.New("Tic Tac Toe"))
+                   .Append(Label.New("Tic Tac Toe")
+                       .Margin(10)
+                       .Ref(labelHandle))
                    .Append(grid)
                );
            })
