@@ -4,10 +4,11 @@ using GtkDotNet.SafeHandles;
 using tic_tac_toe_gtk4;
 
 // Game parameters
-var sideLength = 3;
-var squaresToWin = 3;
+const int sideLength = 3;
+const int squaresToWin = 3;
 
 var board = new Board(sideLength);
+var boxHandle = new ObjectRef<BoxHandle>();
 var buttonHandles = Enumerable.Repeat(0, sideLength * sideLength).Select(h => new ObjectRef<ButtonHandle>()).ToArray();
 var labelHandle = new ObjectRef<LabelHandle>();
 
@@ -15,20 +16,19 @@ void ButtonOnClicked(int row, int column)
 {
     buttonHandles[row * sideLength + column].Ref.Label($"{board.UpdateBoard(row, column)}");
     // TODO: Better two line text alignment
-    labelHandle.Ref.Set($"{board.Player} moves next");
+    labelHandle.Ref.Set($"Player: {board.Player}");
     
     Board.Winner winner = board.CheckBoard(row, column, squaresToWin);
-    // TODO: Game logic
     switch (winner)
     {
         case Board.Winner.X:
         case Board.Winner.O:
-            labelHandle.Ref.Set($"{winner} is the winner!\nX moves first");
+            labelHandle.Ref.Set($"{winner} is the winner!\nPlayer: X");
             board.ResetBoard(buttonHandles);
             break;
 
         case Board.Winner.Tie:
-            labelHandle.Ref.Set("It's a tie!\nX moves first");
+            labelHandle.Ref.Set("It's a tie!\nPlayer: X");
             board.ResetBoard(buttonHandles);
             break;
 
@@ -62,16 +62,17 @@ return Application
                        grid.Attach(
                            Button.NewWithLabel("")
                                .OnClicked(() => ButtonOnClicked(row, column))
-                               .SizeRequest(50, 50)
-                               .Margin(3)
+                               .SizeRequest(80, 80)
+                               .Margin(5)
                                .CssClass("square-button")
                                .Ref(buttonHandles[j * sideLength + i]),
                            i, j, 1, 1
                        );
                    }
                }
+               
                win.Child(Box.New(Orientation.Vertical)
-                   .Append(Label.New("Tic Tac Toe\nX moves first")
+                   .Append(Label.New("Tic Tac Toe\nPlayer: X")
                        .Margin(10)
                        .CssClass("title-label")
                        .Ref(labelHandle))
